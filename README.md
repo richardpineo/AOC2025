@@ -47,6 +47,6 @@ dotnet run diag2id 111
 
 This project was developed using a "vibe coding" workflow: the C# solutions were generated and iterated with the help of an AI coding assistant. The user did not hand-write the C# code in this repository.
 
-AI used during development: **GPT-5 mini**.
+This project was developed with AI assistance.
 
 If you prefer different wording or want this statement removed or expanded (for example to mention testing/verification steps), tell me and I'll update it.
