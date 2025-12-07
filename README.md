@@ -42,3 +42,11 @@ dotnet run diag2id 111
 ## Want more?
 
 - I can add unit tests, faster analytical counting for large ranges, or CI steps. Tell me which and I'll scaffold them.
+
+## Authorship & AI Assist
+
+This project was developed using a "vibe coding" workflow: the C# solutions were generated and iterated with the help of an AI coding assistant. The user did not hand-write the C# code in this repository.
+
+AI used during development: **GPT-5 mini**.
+
+If you prefer different wording or want this statement removed or expanded (for example to mention testing/verification steps), tell me and I'll update it.
