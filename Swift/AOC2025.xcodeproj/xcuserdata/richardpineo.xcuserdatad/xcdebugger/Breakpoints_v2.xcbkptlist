@@ -14,8 +14,8 @@
             filePath = "AOC2025/Days/Day1.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "28"
-            endingLineNumber = "28"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
             landmarkName = "load(_:)"
             landmarkType = "7">
          </BreakpointContent>
