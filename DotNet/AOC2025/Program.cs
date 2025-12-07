@@ -4,6 +4,7 @@ using AOC2025.Common;
 var days = new DayBase[]
 {
     new Day01(),
+    new Day02(),
     // Add more days as you solve them
 };
 
