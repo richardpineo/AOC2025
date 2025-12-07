@@ -6,17 +6,25 @@ public class Day02 : DayBase
 {
     public Day02() : base(2) { }
 
-    private static bool IsInvalidId(string id)
+    private static bool IsInvalidId(long id)
     {
-        // Check if the ID is made of a sequence repeated twice
-        int half = id.Length / 2;
-        if (id.Length % 2 != 0)
-            return false;
+        var idStr = id.ToString();
+        int len = idStr.Length;
 
-        string first = id.Substring(0, half);
-        string second = id.Substring(half);
+        // Check for patterns repeated exactly 2 times (not more)
+        for (int patternLen = 1; patternLen <= len / 2; patternLen++)
+        {
+            if (len == patternLen * 2)  // Pattern length times 2 equals total length
+            {
+                string pattern = idStr.Substring(0, patternLen);
+                string second = idStr.Substring(patternLen, patternLen);
+                
+                if (pattern == second)
+                    return true;
+            }
+        }
 
-        return first == second;
+        return false;
     }
 
     private static long SumInvalidIds(long start, long end)
@@ -24,7 +32,7 @@ public class Day02 : DayBase
         long sum = 0;
         for (long id = start; id <= end; id++)
         {
-            if (IsInvalidId(id.ToString()))
+            if (IsInvalidId(id))
             {
                 sum += id;
             }
@@ -51,7 +59,34 @@ public class Day02 : DayBase
 
     public override string Part2(string input)
     {
-        // Part 2 - TBD
-        return "Not implemented";
+        // Part 2 - Count how many valid IDs are in the ranges
+        var ranges = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        long totalCount = 0;
+
+        foreach (var range in ranges)
+        {
+            var parts = range.Trim().Split('-');
+            if (long.TryParse(parts[0], out var start) && long.TryParse(parts[1], out var end))
+            {
+                long rangeSize = end - start + 1;
+                long invalidCount = CountInvalidIds(start, end);
+                totalCount += rangeSize - invalidCount;
+            }
+        }
+
+        return totalCount.ToString();
+    }
+
+    private static long CountInvalidIds(long start, long end)
+    {
+        long count = 0;
+        for (long id = start; id <= end; id++)
+        {
+            if (IsInvalidId(id))
+            {
+                count++;
+            }
+        }
+        return count;
     }
 }

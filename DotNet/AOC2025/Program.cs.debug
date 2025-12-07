@@ -1,0 +1,55 @@
+using AOC2025.Days;
+using AOC2025.Common;
+
+// Quick test
+bool IsInvalidId(long id)
+{
+    var idStr = id.ToString();
+    int len = idStr.Length;
+
+    for (int patternLen = 1; patternLen <= len / 2; patternLen++)
+    {
+        if (len % patternLen == 0)
+        {
+            int repetitions = len / patternLen;
+            
+            if (repetitions >= 2)
+            {
+                string pattern = idStr.Substring(0, patternLen);
+                bool isRepeating = true;
+                
+                for (int i = patternLen; i < len; i += patternLen)
+                {
+                    string chunk = idStr.Substring(i, patternLen);
+                    if (chunk != pattern)
+                    {
+                        isRepeating = false;
+                        break;
+                    }
+                }
+                
+                if (isRepeating)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+var testIds = new[] { 11, 22, 99, 1010, 55, 6464, 123123 };
+foreach (var id in testIds)
+{
+    Console.WriteLine($"{id}: {IsInvalidId(id)}");
+}
+
+// Sum for 11-22 range
+long sum = 0;
+for (long id = 11; id <= 22; id++)
+{
+    if (IsInvalidId(id))
+    {
+        Console.WriteLine($"  Invalid: {id}");
+        sum += id;
+    }
+}
+Console.WriteLine($"Sum for 11-22: {sum}");
