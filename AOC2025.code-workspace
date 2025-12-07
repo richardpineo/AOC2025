@@ -4,7 +4,10 @@
 			"path": "."
 		},
 		{
-			"path": "."
+			"path": "DotNet/AOC2025"
+		},
+		{
+			"path": "Swift/AOC2025"
 		}
 	]
 }

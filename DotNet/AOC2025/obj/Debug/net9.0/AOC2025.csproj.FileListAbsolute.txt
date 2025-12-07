@@ -1,0 +1,16 @@
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.GeneratedMSBuildEditorConfig.editorconfig
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.AssemblyInfoInputs.cache
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.AssemblyInfo.cs
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.csproj.CoreCompileInputs.cache
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/Resources/Day01_Input.txt
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/Resources/Day01_Test.txt
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/AOC2025
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/AOC2025.deps.json
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/AOC2025.runtimeconfig.json
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/AOC2025.dll
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/bin/Debug/net9.0/AOC2025.pdb
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.dll
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/refint/AOC2025.dll
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.pdb
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/AOC2025.genruntimeconfig.cache
+/Users/richardpineo/src/pineo/AOC2025/DotNet/AOC2025/obj/Debug/net9.0/ref/AOC2025.dll
