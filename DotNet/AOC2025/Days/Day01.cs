@@ -37,12 +37,14 @@ public class Day01 : DayBase
             foreach (var turn in Turns)
             {
                 var startPos = pos;
-                pos += (turn.ToRight ? 1 : -1) * turn.Count;
-                pos %= 100;
-
-                if (pos == 0)
+                for (int i = 0; i < turn.Count; i++)
                 {
-                    count++;
+                    pos += (turn.ToRight ? 1 : -1);
+                    pos %= 100;
+                    if (pos == 0)
+                    {
+                        count++;
+                    }
                 }
             }
             return count;
