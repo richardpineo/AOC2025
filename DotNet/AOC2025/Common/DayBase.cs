@@ -1,5 +1,7 @@
 namespace AOC2025.Common;
 
+using System.Diagnostics;
+
 public abstract class DayBase
 {
     public int DayNumber { get; }
@@ -26,11 +28,18 @@ public abstract class DayBase
         }
 
         var input = FileHelper.ReadFile(path);
-
+        
+        var sw = Stopwatch.StartNew();
         var part1Result = Part1(input);
+        sw.Stop();
+        var part1Elapsed = sw.Elapsed;
+        
+        sw.Restart();
         var part2Result = Part2(input);
+        sw.Stop();
+        var part2Elapsed = sw.Elapsed;
 
-        Console.WriteLine($"  Part 1: {part1Result}");
-        Console.WriteLine($"  Part 2: {part2Result}");
+        Console.WriteLine($"  Part 1: {part1Result} ({part1Elapsed.TotalMilliseconds:F2}ms)");
+        Console.WriteLine($"  Part 2: {part2Result} ({part2Elapsed.TotalMilliseconds:F2}ms)");
     }
 }
