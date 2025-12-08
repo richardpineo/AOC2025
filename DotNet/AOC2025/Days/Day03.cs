@@ -37,7 +37,53 @@ public class Day03 : DayBase
 
     public override string Part2(string input)
     {
-        // TODO: Implement Part 2
-        return "0";
+        var lines = input.Trim().Split('\n');
+        long totalJoltage = 0;
+
+        const int k = 12; // select exactly 12 batteries per bank for Part 2
+        foreach (var line in lines)
+        {
+            long maxJoltage = FindLargestKDigit(line, k);
+            totalJoltage += maxJoltage;
+        }
+
+        return totalJoltage.ToString();
+    }
+
+    private static long FindLargestKDigit(string line, int k)
+    {
+        if (line.Length < k)
+            return 0;
+
+        int n = line.Length;
+        var stack = new List<char>(k);
+
+        for (int i = 0; i < n; i++)
+        {
+            char c = line[i];
+            int remaining = n - i; // including current
+
+            // While we can pop and still fill k digits later, and the last in stack is smaller than current, pop it
+            while (stack.Count > 0 && stack[stack.Count - 1] < c && (stack.Count - 1) + remaining >= k)
+            {
+                stack.RemoveAt(stack.Count - 1);
+            }
+
+            // If we still have room, push current digit
+            if (stack.Count < k)
+            {
+                stack.Add(c);
+            }
+            // otherwise skip this digit
+        }
+
+        // Build the resulting k-digit number from the first k digits in the stack
+        long result = 0;
+        for (int i = 0; i < k; i++)
+        {
+            result = result * 10 + (stack[i] - '0');
+        }
+
+        return result;
     }
 }
