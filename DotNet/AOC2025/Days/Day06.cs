@@ -81,7 +81,117 @@ public class Day06 : DayBase
 
     public override string Part2(string input)
     {
-        // TODO: Implement Day 6 Part 2
-        return "0";
+        var lines = input.TrimEnd('\n').Split('\n');
+        if (lines.Length == 0) return "0";
+
+        // Get max length for processing
+        int maxLen = lines.Max(l => l.Length);
+        
+        // Pad all lines to same length
+        for (int i = 0; i < lines.Length; i++)
+        {
+            if (lines[i].Length < maxLen)
+                lines[i] = lines[i].PadRight(maxLen);
+        }
+        
+        int rows = lines.Length;
+        int cols = maxLen;
+        
+        // Process columns right-to-left
+        // Each column contains digits of one number (top to bottom)
+        // When we hit an operator at bottom, it's the last number of a problem
+        // Blank columns separate problems
+        long grandTotal = 0;
+        
+        var currentProblem = new List<long>();
+        char currentOp = ' ';
+        
+        // Read from right to left
+        for (int col = cols - 1; col >= 0; col--)
+        {
+            bool isBlank = IsBlankColumn(lines, col, rows);
+            
+            if (isBlank)
+            {
+                // If we have a problem in progress, calculate and save it
+                if (currentProblem.Count > 0 && currentOp != ' ')
+                {
+                    long result = currentProblem[0];
+                    for (int i = 1; i < currentProblem.Count; i++)
+                    {
+                        if (currentOp == '+')
+                            result += currentProblem[i];
+                        else if (currentOp == '*')
+                            result *= currentProblem[i];
+                    }
+                    grandTotal += result;
+                    currentProblem.Clear();
+                    currentOp = ' ';
+                }
+                continue;
+            }
+            
+            // Non-blank column - read digits top to bottom to form a number
+            var digits = new List<char>();
+            for (int row = 0; row < rows - 1; row++)
+            {
+                char c = lines[row][col];
+                if (c >= '0' && c <= '9')
+                    digits.Add(c);
+            }
+            
+            // Check if this column has an operator at the bottom
+            char opChar = lines[rows - 1][col];
+            bool hasOperator = (opChar == '+' || opChar == '*');
+            
+            // If we have digits, form a number
+            if (digits.Count > 0)
+            {
+                string numStr = new string(digits.ToArray());
+                if (long.TryParse(numStr, out long num))
+                {
+                    currentProblem.Add(num);
+                }
+            }
+            
+            // If this column has an operator, it marks the end of this problem
+            if (hasOperator)
+            {
+                currentOp = opChar;
+                
+                // Calculate the problem result
+                if (currentProblem.Count > 0)
+                {
+                    long result = currentProblem[0];
+                    for (int i = 1; i < currentProblem.Count; i++)
+                    {
+                        if (currentOp == '+')
+                            result += currentProblem[i];
+                        else if (currentOp == '*')
+                            result *= currentProblem[i];
+                    }
+                    grandTotal += result;
+                    currentProblem.Clear();
+                    currentOp = ' ';
+                }
+            }
+        }
+        
+        // Don't forget the last problem if it didn't have an operator column
+        // (shouldn't happen but just in case)
+        if (currentProblem.Count > 0 && currentOp != ' ')
+        {
+            long result = currentProblem[0];
+            for (int i = 1; i < currentProblem.Count; i++)
+            {
+                if (currentOp == '+')
+                    result += currentProblem[i];
+                else if (currentOp == '*')
+                    result *= currentProblem[i];
+            }
+            grandTotal += result;
+        }
+
+        return grandTotal.ToString();
     }
 }

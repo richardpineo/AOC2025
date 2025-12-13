@@ -19,7 +19,7 @@ public static class FileHelper
         if (!File.Exists(path))
             throw new FileNotFoundException($"File not found: {path}");
 
-        return File.ReadAllText(path).Trim();
+        return File.ReadAllText(path);
     }
 
     public static string[] ReadLines(string path)
