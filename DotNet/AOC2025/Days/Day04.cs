@@ -42,7 +42,65 @@ public class Day04 : DayBase
 
     public override string Part2(string input)
     {
-        // Part 2 not implemented yet
-        return "0";
+        var lines = input.Trim('\n').Split('\n').Select(l => l.TrimEnd()).ToArray();
+        if (lines.Length == 0) return "0";
+
+        int rows = lines.Length;
+        int cols = lines[0].Length;
+        
+        // Create mutable grid
+        var grid = new char[rows][];
+        for (int r = 0; r < rows; r++)
+        {
+            grid[r] = lines[r].ToCharArray();
+        }
+
+        int[] dr = new[] { -1, -1, -1, 0, 0, 1, 1, 1 };
+        int[] dc = new[] { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+        int totalRemoved = 0;
+        bool changed = true;
+        
+        while (changed)
+        {
+            changed = false;
+            var toRemove = new List<(int r, int c)>();
+            
+            // Find all accessible rolls
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    if (grid[r][c] != '@') continue;
+
+                    int neighbors = 0;
+                    for (int k = 0; k < 8; k++)
+                    {
+                        int nr = r + dr[k];
+                        int nc = c + dc[k];
+                        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+                        if (grid[nr][nc] == '@') neighbors++;
+                    }
+
+                    if (neighbors < 4)
+                    {
+                        toRemove.Add((r, c));
+                    }
+                }
+            }
+            
+            // Remove all accessible rolls
+            if (toRemove.Count > 0)
+            {
+                changed = true;
+                totalRemoved += toRemove.Count;
+                foreach (var (r, c) in toRemove)
+                {
+                    grid[r][c] = '.';
+                }
+            }
+        }
+
+        return totalRemoved.ToString();
     }
 }
