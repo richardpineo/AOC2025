@@ -75,7 +75,60 @@ public class Day07 : DayBase
 
     public override string Part2(string input)
     {
-        // TODO: Implement Day 7 Part 2
-        return "0";
+        var lines = input.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var grid = lines.Select(l => l.ToCharArray()).ToArray();
+        
+        // Find starting position 'S'
+        int startCol = -1;
+        for (int col = 0; col < grid[0].Length; col++)
+        {
+            if (grid[0][col] == 'S')
+            {
+                startCol = col;
+                break;
+            }
+        }
+        
+        // Count unique leaf endpoints (where particle exits)
+        var endpoints = new HashSet<(int row, int col)>();
+        var visitedStates = new HashSet<(int row, int col, int dirRow, int dirCol)>();
+        
+        DFS(0, startCol, 1, 0, grid, endpoints, visitedStates);
+        
+        return endpoints.Count.ToString();
+    }
+    
+    private void DFS(int row, int col, int dirRow, int dirCol, char[][] grid, 
+                     HashSet<(int row, int col)> endpoints, 
+                     HashSet<(int row, int col, int dirRow, int dirCol)> visitedStates)
+    {
+        // Out of bounds - this is an endpoint
+        if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
+        {
+            return;
+        }
+        
+        // Prevent infinite loops
+        if (visitedStates.Contains((row, col, dirRow, dirCol)))
+        {
+            // Mark as endpoint if we hit a loop
+            endpoints.Add((row, col));
+            return;
+        }
+        visitedStates.Add((row, col, dirRow, dirCol));
+        
+        char cell = grid[row][col];
+        
+        if (cell == '^')
+        {
+            // Splitter: create two branches
+            DFS(row, col - 1, 1, 0, grid, endpoints, visitedStates);  
+            DFS(row, col + 1, 1, 0, grid, endpoints, visitedStates);   
+        }
+        else
+        {
+            // Empty space or 'S': continue
+            DFS(row + dirRow, col + dirCol, dirRow, dirCol, grid, endpoints, visitedStates);
+        }
     }
 }
