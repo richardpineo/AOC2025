@@ -36,7 +36,43 @@ public class Day05 : DayBase
 
     public override string Part2(string input)
     {
-        // TODO: Implement Day 5 Part 2
-        return "0";
+        var parts = input.Trim().Split("\n\n");
+        if (parts.Length != 2) return "0";
+
+        // Parse ranges
+        var ranges = new List<(long min, long max)>();
+        foreach (var line in parts[0].Split('\n'))
+        {
+            var range = line.Split('-');
+            ranges.Add((long.Parse(range[0]), long.Parse(range[1])));
+        }
+
+        // Merge overlapping ranges to count unique IDs
+        ranges = ranges.OrderBy(r => r.min).ToList();
+        var merged = new List<(long min, long max)>();
+        
+        foreach (var range in ranges)
+        {
+            if (merged.Count == 0 || range.min > merged[^1].max + 1)
+            {
+                // No overlap, add new range
+                merged.Add(range);
+            }
+            else
+            {
+                // Overlap or adjacent, merge with last range
+                var last = merged[^1];
+                merged[^1] = (last.min, Math.Max(last.max, range.max));
+            }
+        }
+
+        // Count total IDs in merged ranges
+        long totalIds = 0;
+        foreach (var (min, max) in merged)
+        {
+            totalIds += (max - min + 1);
+        }
+
+        return totalIds.ToString();
     }
 }
