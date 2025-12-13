@@ -11,86 +11,59 @@ public class Day06 : DayBase
         var lines = input.TrimEnd('\n').Split('\n');
         if (lines.Length == 0) return "0";
 
-        int rows = lines.Length;
-        int cols = lines.Max(l => l.Length);
-
-        // Pad all lines to same length
-        for (int i = 0; i < rows; i++)
+        // Split each line by spaces to get columns
+        var rows = new List<string[]>();
+        foreach (var line in lines)
         {
-            if (lines[i].Length < cols)
-                lines[i] = lines[i].PadRight(cols);
+            rows.Add(line.Split(' ', StringSplitOptions.RemoveEmptyEntries));
         }
 
-        // Parse problems: each problem is a group of non-blank columns
-        // Within each problem column, read vertically to get one number
-        var problems = new List<(List<long> numbers, char op)>();
-        int col = 0;
+        if (rows.Count == 0) return "0";
         
-        while (col < cols)
+        // Get number of columns (from the row with most columns)
+        int numCols = rows.Max(r => r.Length);
+        
+        // Process each column
+        long grandTotal = 0;
+        for (int col = 0; col < numCols; col++)
         {
-            // Skip blank columns
-            while (col < cols && IsBlankColumn(lines, col, rows))
-                col++;
-            
-            if (col >= cols) break;
-
-            // Found start of a problem - read columns until blank or end
-            int problemStart = col;
-            while (col < cols && !IsBlankColumn(lines, col, rows))
-                col++;
-            
-            int problemEnd = col;
-            
-            // Now parse this problem (columns problemStart to problemEnd-1)
-            // Read each ROW horizontally within this problem to get numbers
             var numbers = new List<long>();
             char op = ' ';
             
-            // Read each row (except last) to get numbers
-            for (int r = 0; r < rows - 1; r++)
+            // Read all rows for this column
+            for (int row = 0; row < rows.Count - 1; row++)
             {
-                var numStr = lines[r].Substring(problemStart, problemEnd - problemStart).Trim();
-                if (!string.IsNullOrEmpty(numStr))
+                if (col < rows[row].Length)
                 {
-                    if (long.TryParse(numStr, out long num))
+                    if (long.TryParse(rows[row][col], out long num))
                     {
                         numbers.Add(num);
                     }
                 }
             }
             
-            // Get operator from last row (any non-space character)
-            for (int c = problemStart; c < problemEnd; c++)
+            // Get operator from last row
+            if (col < rows[^1].Length)
             {
-                char opChar = lines[rows - 1][c];
-                if (opChar == '+' || opChar == '*')
+                string opStr = rows[^1][col];
+                if (opStr.Length > 0)
+                    op = opStr[0];
+            }
+            
+            // Calculate factor for this column
+            if (numbers.Count > 0 && (op == '+' || op == '*'))
+            {
+                long factor = numbers[0];
+                for (int i = 1; i < numbers.Count; i++)
                 {
-                    op = opChar;
-                    break;
+                    if (op == '+')
+                        factor += numbers[i];
+                    else if (op == '*')
+                        factor *= numbers[i];
                 }
+                
+                grandTotal += factor;
             }
-            
-            if (numbers.Count > 0 && op != ' ')
-            {
-                problems.Add((numbers, op));
-            }
-        }
-
-        // Calculate grand total
-        long grandTotal = 0;
-        foreach (var (numbers, op) in problems)
-        {
-            if (numbers.Count == 0) continue;
-            
-            long result = numbers[0];
-            for (int i = 1; i < numbers.Count; i++)
-            {
-                if (op == '+')
-                    result += numbers[i];
-                else if (op == '*')
-                    result *= numbers[i];
-            }
-            grandTotal += result;
         }
 
         return grandTotal.ToString();
