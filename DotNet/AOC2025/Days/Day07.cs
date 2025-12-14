@@ -89,46 +89,59 @@ public class Day07 : DayBase
             }
         }
         
-        // BFS - track all cells visited
-        var queue = new Queue<(int row, int col, int drrow, int drCol)>();
-        var visitedStates = new HashSet<(int row, int col, int drrow, int drCol)>();
-        var visitedCells = new HashSet<(int row, int col)>();
+        // Use a more efficient representation: only track (position, incoming_direction) to detect true collisions
+        // A "timeline" only collapses if it reaches the same position from the same direction
+        var activeBeams = new HashSet<(int row, int col, int fromRow, int fromCol)> 
+        { 
+            (0, startCol, -1, 0)  // Start position with "came from above" indicator
+        };
         
-        queue.Enqueue((0, startCol, 1, 0));  // Start at S, moving down
+        var allVisited = new HashSet<(int row, int col, int fromRow, int fromCol)>();
         
-        while (queue.Count > 0)
+        while (activeBeams.Count > 0)
         {
-            var (row, col, drrow, drCol) = queue.Dequeue();
+            var nextBeams = new HashSet<(int row, int col, int fromRow, int fromCol)>();
             
-            // Out of bounds
-            if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
+            foreach (var (row, col, fromRow, fromCol) in activeBeams)
             {
-                continue;
+                // Skip if we've seen this exact state before (infinite loop detection)
+                if (allVisited.Contains((row, col, fromRow, fromCol)))
+                {
+                    continue;
+                }
+                allVisited.Add((row, col, fromRow, fromCol));
+                
+                // Bounds check
+                if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
+                {
+                    continue;
+                }
+                
+                char cell = grid[row][col];
+                
+                if (cell == '^')
+                {
+                    // Splitter: create two beams (left and right)
+                    nextBeams.Add((row, col - 1, row, col));  // Left beam, came from current position
+                    nextBeams.Add((row, col + 1, row, col));  // Right beam, came from current position
+                }
+                else
+                {
+                    // Empty space or 'S': continue moving down
+                    nextBeams.Add((row + 1, col, row, col));
+                }
             }
             
-            // Skip if we've seen this state before
-            if (visitedStates.Contains((row, col, drrow, drCol)))
-            {
-                continue;
-            }
-            visitedStates.Add((row, col, drrow, drCol));
-            visitedCells.Add((row, col));
-            
-            char cell = grid[row][col];
-            
-            if (cell == '^')
-            {
-                // Splitter: two new beams created to the left and right
-                queue.Enqueue((row, col - 1, 1, 0));  // Beam to the left, moving down
-                queue.Enqueue((row, col + 1, 1, 0));  // Beam to the right, moving down
-            }
-            else
-            {
-                // Empty space or 'S': continue moving
-                queue.Enqueue((row + drrow, col + drCol, drrow, drCol));
-            }
+            activeBeams = nextBeams;
         }
         
-        return visitedCells.Count.ToString();
+        // Count unique cells visited (not counting direction)
+        var uniqueCells = new HashSet<(int row, int col)>();
+        foreach (var (row, col, _, _) in allVisited)
+        {
+            uniqueCells.Add((row, col));
+        }
+        
+        return uniqueCells.Count.ToString();
     }
 }
