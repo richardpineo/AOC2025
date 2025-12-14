@@ -5,50 +5,6 @@ namespace AOC2025.Days;
 public class Day09 : DayBase
 {
     public Day09() : base(9) { }
-    
-    private class SpatialIndex
-    {
-        private Dictionary<(int, int), List<(int x, int y)>> grid = new();
-        private int cellSize;
-        
-        public SpatialIndex(int cellSize)
-        {
-            this.cellSize = cellSize;
-        }
-        
-        public void Add(int x, int y)
-        {
-            var cell = (x / cellSize, y / cellSize);
-            if (!grid.ContainsKey(cell))
-                grid[cell] = new List<(int x, int y)>();
-            grid[cell].Add((x, y));
-        }
-        
-        public long CountInRectangle(int minX, int maxX, int minY, int maxY)
-        {
-            long count = 0;
-            int minCellX = minX / cellSize;
-            int maxCellX = maxX / cellSize;
-            int minCellY = minY / cellSize;
-            int maxCellY = maxY / cellSize;
-            
-            for (int cx = minCellX; cx <= maxCellX; cx++)
-            {
-                for (int cy = minCellY; cy <= maxCellY; cy++)
-                {
-                    if (grid.TryGetValue((cx, cy), out var tiles))
-                    {
-                        foreach (var (x, y) in tiles)
-                        {
-                            if (x >= minX && x <= maxX && y >= minY && y <= maxY)
-                                count++;
-                        }
-                    }
-                }
-            }
-            return count;
-        }
-    }
 
     public override string Part1(string input)
     {
@@ -170,40 +126,5 @@ public class Day09 : DayBase
         }
 
         return maxArea.ToString();
-    }
-    
-    private bool IsInsideLoop(int x, int y, List<(int x, int y)> loop)
-    {
-        // Ray casting algorithm
-        int crossings = 0;
-        for (int i = 0; i < loop.Count; i++)
-        {
-            var p1 = loop[i];
-            var p2 = loop[(i + 1) % loop.Count];
-            
-            if ((p1.y <= y && p2.y > y) || (p2.y <= y && p1.y > y))
-            {
-                double xIntersect = p1.x + (double)(y - p1.y) / (p2.y - p1.y) * (p2.x - p1.x);
-                if (x < xIntersect)
-                {
-                    crossings++;
-                }
-            }
-        }
-        return (crossings % 2) == 1;
-    }
-    
-    private bool IsRectangleValidFast((int x, int y) corner1, (int x, int y) corner2, SpatialIndex spatialIndex)
-    {
-        int minX = Math.Min(corner1.x, corner2.x);
-        int maxX = Math.Max(corner1.x, corner2.x);
-        int minY = Math.Min(corner1.y, corner2.y);
-        int maxY = Math.Max(corner1.y, corner2.y);
-        
-        long expectedArea = (long)(maxX - minX + 1) * (maxY - minY + 1);
-        long validCount = spatialIndex.CountInRectangle(minX, maxX, minY, maxY);
-        
-        // Rectangle is valid only if it's completely filled with valid tiles
-        return validCount == expectedArea;
     }
 }
