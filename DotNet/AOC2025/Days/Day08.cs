@@ -144,18 +144,26 @@ public class Day08 : DayBase
         // Sort by distance
         distances.Sort((a, b) => a.dist.CompareTo(b.dist));
 
-        // Union-Find: connect all pairs until one circuit remains
+        // Union-Find: connect pairs until all are in one circuit
         var uf = new UnionFind(points.Count);
-        int lastConnectingDistance = -1;
+        int lastI = -1, lastJ = -1;
+        
         foreach (var (dist, i, j) in distances)
         {
             if (uf.Find(i) != uf.Find(j))
             {
                 uf.Union(i, j);
-                lastConnectingDistance = (int)Math.Ceiling(dist);
+                lastI = i;
+                lastJ = j;
+                
+                // Check if all nodes are now in one circuit
+                if (uf.GetSize(i) == points.Count)
+                    break;
             }
         }
 
-        return lastConnectingDistance.ToString();
+        // Multiply X coordinates of the last connection
+        long result = (long)points[lastI].x * (long)points[lastJ].x;
+        return result.ToString();
     }
 }
