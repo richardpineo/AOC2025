@@ -177,9 +177,123 @@ public class Day10 : DayBase
         return totalPresses.ToString();
     }
 
+    private int SolveMinPressesJoltage(Machine machine, List<int> targets)
+    {
+        int numCounters = targets.Count;
+        int numButtons = machine.Buttons.Count;
+        
+        // Build contribution matrix
+        var contributions = new int[numButtons][];
+        for (int i = 0; i < numButtons; i++)
+        {
+            contributions[i] = new int[numCounters];
+            foreach (var counter in machine.Buttons[i])
+            {
+                if (counter < numCounters)
+                    contributions[i][counter] = 1;
+            }
+        }
+        
+        // Beam search with deduplication
+        int beamWidth = 500;
+        var currentBeam = new Dictionary<string, int>(); // state -> cost
+        currentBeam[string.Join(",", new int[numCounters])] = 0;
+        
+        for (int depth = 0; depth < targets.Sum() * 2; depth++)
+        {
+            var nextBeam = new Dictionary<string, int>();
+            
+            foreach (var (key, cost) in currentBeam)
+            {
+                var counters = key.Split(',').Select(int.Parse).ToArray();
+                
+                // Check if done
+                bool done = true;
+                for (int i = 0; i < numCounters; i++)
+                {
+                    if (counters[i] != targets[i])
+                    {
+                        done = false;
+                        break;
+                    }
+                }
+                
+                if (done)
+                    return cost;
+                
+                // Try each button
+                for (int btn = 0; btn < numButtons; btn++)
+                {
+                    var newCounters = (int[])counters.Clone();
+                    bool valid = true;
+                    bool helpful = false;
+                    
+                    for (int i = 0; i < numCounters; i++)
+                    {
+                        newCounters[i] += contributions[btn][i];
+                        if (newCounters[i] > targets[i])
+                        {
+                            valid = false;
+                            break;
+                        }
+                        if (counters[i] < targets[i] && contributions[btn][i] > 0)
+                            helpful = true;
+                    }
+                    
+                    if (valid && helpful)
+                    {
+                        var newKey = string.Join(",", newCounters);
+                        int newCost = cost + 1;
+                        
+                        if (!nextBeam.TryGetValue(newKey, out int oldCost) || newCost < oldCost)
+                        {
+                            nextBeam[newKey] = newCost;
+                        }
+                    }
+                }
+            }
+            
+            if (nextBeam.Count == 0)
+                break;
+            
+            // Keep only best beamWidth states by heuristic
+            currentBeam = nextBeam
+                .OrderBy(kvp =>
+                {
+                    var counters = kvp.Key.Split(',').Select(int.Parse).ToArray();
+                    int maxRemaining = 0;
+                    for (int i = 0; i < numCounters; i++)
+                    {
+                        maxRemaining = Math.Max(maxRemaining, targets[i] - counters[i]);
+                    }
+                    return kvp.Value + maxRemaining;
+                })
+                .Take(beamWidth)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+        
+        return 0;
+    }
+
     public override string Part2(string input)
     {
-        // TODO: Implement Part 2
-        return "0";
+        var lines = input.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        int totalPresses = 0;
+        
+        foreach (var line in lines)
+        {
+            var machine = ParseMachine(line);
+            
+            // Extract joltage targets from {3,5,4,7}
+            int braceStart = line.IndexOf('{') + 1;
+            int braceEnd = line.IndexOf('}');
+            var targetsStr = line.Substring(braceStart, braceEnd - braceStart);
+            var targets = targetsStr.Split(',').Select(s => int.Parse(s.Trim())).ToList();
+            
+            int minPresses = SolveMinPressesJoltage(machine, targets);
+            totalPresses += minPresses;
+        }
+        
+        return totalPresses.ToString();
     }
 }
