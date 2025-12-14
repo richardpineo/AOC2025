@@ -89,46 +89,46 @@ public class Day07 : DayBase
             }
         }
         
-        // Count unique leaf endpoints (where particle exits)
-        var endpoints = new HashSet<(int row, int col)>();
-        var visitedStates = new HashSet<(int row, int col, int dirRow, int dirCol)>();
+        // BFS with (row, col, direction) as state
+        var queue = new Queue<(int row, int col, int drrow, int drCol)>();
+        var visitedStates = new HashSet<(int row, int col, int drrow, int drCol)>();
+        var visitedCells = new HashSet<(int row, int col)>();
         
-        DFS(0, startCol, 1, 0, grid, endpoints, visitedStates);
+        queue.Enqueue((0, startCol, 1, 0));  // Start at S, moving down
         
-        return endpoints.Count.ToString();
-    }
-    
-    private void DFS(int row, int col, int dirRow, int dirCol, char[][] grid, 
-                     HashSet<(int row, int col)> endpoints, 
-                     HashSet<(int row, int col, int dirRow, int dirCol)> visitedStates)
-    {
-        // Out of bounds - this is an endpoint
-        if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
+        while (queue.Count > 0)
         {
-            return;
+            var (row, col, drrow, drCol) = queue.Dequeue();
+            
+            // Out of bounds
+            if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
+            {
+                continue;
+            }
+            
+            // Skip if we've seen this state before
+            if (visitedStates.Contains((row, col, drrow, drCol)))
+            {
+                continue;
+            }
+            visitedStates.Add((row, col, drrow, drCol));
+            visitedCells.Add((row, col));
+            
+            char cell = grid[row][col];
+            
+            if (cell == '^')
+            {
+                // Splitter: particle splits left and right (horizontally)
+                queue.Enqueue((row, col - 1, 0, -1));  // Go left
+                queue.Enqueue((row, col + 1, 0, 1));   // Go right
+            }
+            else
+            {
+                // Empty space or 'S': continue in same direction
+                queue.Enqueue((row + drrow, col + drCol, drrow, drCol));
+            }
         }
         
-        // Prevent infinite loops
-        if (visitedStates.Contains((row, col, dirRow, dirCol)))
-        {
-            // Mark as endpoint if we hit a loop
-            endpoints.Add((row, col));
-            return;
-        }
-        visitedStates.Add((row, col, dirRow, dirCol));
-        
-        char cell = grid[row][col];
-        
-        if (cell == '^')
-        {
-            // Splitter: create two branches
-            DFS(row, col - 1, 1, 0, grid, endpoints, visitedStates);  
-            DFS(row, col + 1, 1, 0, grid, endpoints, visitedStates);   
-        }
-        else
-        {
-            // Empty space or 'S': continue
-            DFS(row + dirRow, col + dirCol, dirRow, dirCol, grid, endpoints, visitedStates);
-        }
+        return visitedCells.Count.ToString();
     }
 }
