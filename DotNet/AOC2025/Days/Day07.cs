@@ -89,44 +89,41 @@ public class Day07 : DayBase
             }
         }
         
-        // Use memoization to count unique paths efficiently
-        var memo = new Dictionary<(int row, int col, int pathHash), int>();
+        // Memoization: (row, col) -> number of distinct paths from this position to bottom
+        var memo = new Dictionary<(int, int), long>();
         
-        int CountPaths(int row, int col, int pathHash)
+        long CountPaths(int row, int col)
         {
-            // Out of bounds
+            // Out of bounds = 1 path (we reached the bottom successfully)
             if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
-            {
-                return 1;  // One unique path terminates here
-            }
+                return 1;
             
-            var key = (row, col, pathHash);
+            // Check memo
+            var key = (row, col);
             if (memo.ContainsKey(key))
                 return memo[key];
             
             char cell = grid[row][col];
-            int result = 0;
+            long paths;
             
             if (cell == '^')
             {
-                // Splitter: two different paths
-                int leftHash = pathHash * 31 + 0;  // Hash for "left"
-                int rightHash = pathHash * 31 + 1; // Hash for "right"
-                
-                result = CountPaths(row, col - 1, leftHash) + 
-                         CountPaths(row, col + 1, rightHash);
+                // Splitter: sum of paths going left and right
+                long leftPaths = CountPaths(row, col - 1);
+                long rightPaths = CountPaths(row, col + 1);
+                paths = leftPaths + rightPaths;
             }
             else
             {
-                // Empty or 'S': continue down
-                result = CountPaths(row + 1, col, pathHash);
+                // Empty space or 'S': continue downward
+                paths = CountPaths(row + 1, col);
             }
             
-            memo[key] = result;
-            return result;
+            memo[key] = paths;
+            return paths;
         }
         
-        int uniquePaths = CountPaths(0, startCol, 0);
-        return uniquePaths.ToString();
+        long result = CountPaths(0, startCol);
+        return result.ToString();
     }
 }
