@@ -89,58 +89,44 @@ public class Day07 : DayBase
             }
         }
         
-        // Track distinct timelines by their endpoint
-        var timelinesByEndpoint = new Dictionary<(int row, int col), int>();
-        var queue = new Queue<(List<(int row, int col)>, bool isTerminal)>();
-        var processedPaths = new HashSet<string>();
+        // Use memoization to count unique paths efficiently
+        var memo = new Dictionary<(int row, int col, int pathHash), int>();
         
-        var initialPath = new List<(int row, int col)> { (0, startCol) };
-        queue.Enqueue((initialPath, false));
-        
-        while (queue.Count > 0)
+        int CountPaths(int row, int col, int pathHash)
         {
-            var (path, _) = queue.Dequeue();
-            var (row, col) = path[^1];
-            
-            // Check if we've already processed this exact path
-            var pathId = string.Join("|", path);
-            if (processedPaths.Contains(pathId))
-                continue;
-            processedPaths.Add(pathId);
-            
-            // Out of bounds - this timeline ends
+            // Out of bounds
             if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
             {
-                // Count this as an endpoint
-                var lastPos = path[^2];  // Second to last element
-                if (!timelinesByEndpoint.ContainsKey(lastPos))
-                    timelinesByEndpoint[lastPos] = 0;
-                timelinesByEndpoint[lastPos]++;
-                continue;
+                return 1;  // One unique path terminates here
             }
             
+            var key = (row, col, pathHash);
+            if (memo.ContainsKey(key))
+                return memo[key];
+            
             char cell = grid[row][col];
+            int result = 0;
             
             if (cell == '^')
             {
-                // Splitter: two paths branch
-                queue.Enqueue((new List<(int row, int col)>(path) { (row, col - 1) }, false));
-                queue.Enqueue((new List<(int row, int col)>(path) { (row, col + 1) }, false));
+                // Splitter: two different paths
+                int leftHash = pathHash * 31 + 0;  // Hash for "left"
+                int rightHash = pathHash * 31 + 1; // Hash for "right"
+                
+                result = CountPaths(row, col - 1, leftHash) + 
+                         CountPaths(row, col + 1, rightHash);
             }
             else
             {
-                // Continue down
-                queue.Enqueue((new List<(int row, int col)>(path) { (row + 1, col) }, false));
+                // Empty or 'S': continue down
+                result = CountPaths(row + 1, col, pathHash);
             }
+            
+            memo[key] = result;
+            return result;
         }
         
-        // Debug
-        if (input.Length < 500)
-        {
-            Console.WriteLine($"    [DEBUG] Unique endpoint positions: {timelinesByEndpoint.Count}");
-            Console.WriteLine($"    [DEBUG] Total paths processed: {processedPaths.Count}");
-        }
-        
-        return timelinesByEndpoint.Count.ToString();
+        int uniquePaths = CountPaths(0, startCol, 0);
+        return uniquePaths.ToString();
     }
 }
