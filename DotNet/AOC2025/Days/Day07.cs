@@ -89,7 +89,7 @@ public class Day07 : DayBase
             }
         }
         
-        // BFS with (row, col, direction) as state
+        // BFS - track all cells visited
         var queue = new Queue<(int row, int col, int drrow, int drCol)>();
         var visitedStates = new HashSet<(int row, int col, int drrow, int drCol)>();
         var visitedCells = new HashSet<(int row, int col)>();
@@ -118,13 +118,13 @@ public class Day07 : DayBase
             
             if (cell == '^')
             {
-                // Splitter: particle splits left and right (horizontally)
-                queue.Enqueue((row, col - 1, 0, -1));  // Go left
-                queue.Enqueue((row, col + 1, 0, 1));   // Go right
+                // Splitter: two new beams created to the left and right
+                queue.Enqueue((row, col - 1, 1, 0));  // Beam to the left, moving down
+                queue.Enqueue((row, col + 1, 1, 0));  // Beam to the right, moving down
             }
             else
             {
-                // Empty space or 'S': continue in same direction
+                // Empty space or 'S': continue moving
                 queue.Enqueue((row + drrow, col + drCol, drrow, drCol));
             }
         }
