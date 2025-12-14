@@ -89,59 +89,58 @@ public class Day07 : DayBase
             }
         }
         
-        // Use a more efficient representation: only track (position, incoming_direction) to detect true collisions
-        // A "timeline" only collapses if it reaches the same position from the same direction
-        var activeBeams = new HashSet<(int row, int col, int fromRow, int fromCol)> 
-        { 
-            (0, startCol, -1, 0)  // Start position with "came from above" indicator
-        };
+        // Track distinct timelines by their endpoint
+        var timelinesByEndpoint = new Dictionary<(int row, int col), int>();
+        var queue = new Queue<(List<(int row, int col)>, bool isTerminal)>();
+        var processedPaths = new HashSet<string>();
         
-        var allVisited = new HashSet<(int row, int col, int fromRow, int fromCol)>();
+        var initialPath = new List<(int row, int col)> { (0, startCol) };
+        queue.Enqueue((initialPath, false));
         
-        while (activeBeams.Count > 0)
+        while (queue.Count > 0)
         {
-            var nextBeams = new HashSet<(int row, int col, int fromRow, int fromCol)>();
+            var (path, _) = queue.Dequeue();
+            var (row, col) = path[^1];
             
-            foreach (var (row, col, fromRow, fromCol) in activeBeams)
+            // Check if we've already processed this exact path
+            var pathId = string.Join("|", path);
+            if (processedPaths.Contains(pathId))
+                continue;
+            processedPaths.Add(pathId);
+            
+            // Out of bounds - this timeline ends
+            if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
             {
-                // Skip if we've seen this exact state before (infinite loop detection)
-                if (allVisited.Contains((row, col, fromRow, fromCol)))
-                {
-                    continue;
-                }
-                allVisited.Add((row, col, fromRow, fromCol));
-                
-                // Bounds check
-                if (row < 0 || row >= grid.Length || col < 0 || col >= grid[0].Length)
-                {
-                    continue;
-                }
-                
-                char cell = grid[row][col];
-                
-                if (cell == '^')
-                {
-                    // Splitter: create two beams (left and right)
-                    nextBeams.Add((row, col - 1, row, col));  // Left beam, came from current position
-                    nextBeams.Add((row, col + 1, row, col));  // Right beam, came from current position
-                }
-                else
-                {
-                    // Empty space or 'S': continue moving down
-                    nextBeams.Add((row + 1, col, row, col));
-                }
+                // Count this as an endpoint
+                var lastPos = path[^2];  // Second to last element
+                if (!timelinesByEndpoint.ContainsKey(lastPos))
+                    timelinesByEndpoint[lastPos] = 0;
+                timelinesByEndpoint[lastPos]++;
+                continue;
             }
             
-            activeBeams = nextBeams;
+            char cell = grid[row][col];
+            
+            if (cell == '^')
+            {
+                // Splitter: two paths branch
+                queue.Enqueue((new List<(int row, int col)>(path) { (row, col - 1) }, false));
+                queue.Enqueue((new List<(int row, int col)>(path) { (row, col + 1) }, false));
+            }
+            else
+            {
+                // Continue down
+                queue.Enqueue((new List<(int row, int col)>(path) { (row + 1, col) }, false));
+            }
         }
         
-        // Count unique cells visited (not counting direction)
-        var uniqueCells = new HashSet<(int row, int col)>();
-        foreach (var (row, col, _, _) in allVisited)
+        // Debug
+        if (input.Length < 500)
         {
-            uniqueCells.Add((row, col));
+            Console.WriteLine($"    [DEBUG] Unique endpoint positions: {timelinesByEndpoint.Count}");
+            Console.WriteLine($"    [DEBUG] Total paths processed: {processedPaths.Count}");
         }
         
-        return uniqueCells.Count.ToString();
+        return timelinesByEndpoint.Count.ToString();
     }
 }
