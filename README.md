@@ -1,52 +1,121 @@
-# Advent of Code 2025 — .NET solutions
+# Advent of Code 2025 — .NET Solutions
 
 ## Overview
 
-- This workspace contains solutions for Advent of Code 2025 in multiple languages.
-- The .NET project is at `DotNet/AOC2025` and uses .NET 9.
+This repository contains C# solutions for [Advent of Code 2025](https://adventofcode.com/2025) using .NET 9.
 
-## Quickstart (run solutions)
+**Status: 12/25 days scaffolded, 9/24 parts complete**
+- Days 1-9: Both parts complete ✅
+- Day 10: Part 1 complete, Part 2 timeout ⏱️
+- Day 11: Part 1 complete, Part 2 timeout ⏱️
+- Day 12: Scaffolded, implementation incomplete 🚧
+
+## Quick Start
 
 ```bash
 cd DotNet/AOC2025
-# Run all days (prints test + input results)
+
+# Run all days (shows test and input results)
 dotnet run
 
-# Verbose diagnostics for Day 2 (per-range invalid IDs)
+# Run a specific day
+dotnet run -- --day 5
+
+# Run test cases only
+dotnet run -- --test-only
+
+# Run input only
+dotnet run -- --input-only
+
+# Day 2 diagnostics: verbose invalid ID reporting
 dotnet run diag2
 
-# Check a single ID for Day 2 diagnostics
-dotnet run diag2id 111
+# Day 2 diagnostics: check a single ID
+dotnet run diag2id 123123
 ```
 
-## Project layout
+## Project Structure
 
-- `DotNet/AOC2025/`
-  - `Days/` — one source file per day (e.g., `Day01.cs`, `Day02.cs`)
-  - `Common/` — shared helpers (e.g., `FileHelper.cs`, `DayBase.cs`)
-  - `Resources/` — input files (e.g., `Day01_Input.txt`, `Day02_Test.txt`)
-  - `Program.cs` — runner and diagnostic hooks
+```
+DotNet/AOC2025/
+├── Days/              # One file per day (Day01.cs - Day12.cs)
+├── Common/            # Shared utilities
+│   ├── DayBase.cs    # Base class with timing and file loading
+│   └── FileHelper.cs # Input file path helpers
+├── Resources/         # Puzzle inputs
+│   ├── Day01_Input.txt
+│   ├── Day01_Test.txt
+│   └── ...
+└── Program.cs         # Main runner with CLI options
+```
 
-## Adding a new day
+## Implementation Notes
 
-1. Add `DotNet/AOC2025/Days/DayXX.cs` inheriting from `DayBase`.
-2. Implement `Part1(string input)` and `Part2(string input)`.
-3. Add input files to `DotNet/AOC2025/Resources/` (copy your AoC personal input into `DayXX_Input.txt`).
-4. Register the new day in `Program.cs` (add `new DayXX(),` to the `days` array).
+### Completed Solutions
+- **Day 1**: Safe combination lock simulation with modular arithmetic
+- **Day 2**: Pattern-based ID validation with diagnostic tooling
+- **Day 3**: Greedy monotonic stack algorithm for max k-digit selection
+- **Day 4**: Iterative grid simulation with 8-neighbor accessibility rules
+- **Day 5**: Range merging and overlap detection
+- **Day 6**: Column-wise parsing with both space-separated and fixed-width modes
+- **Day 7**: Beam splitter simulation with path counting and memoization
+- **Day 8**: 3D constellation grouping using Union-Find (Kruskal-style MST)
+- **Day 9**: Coordinate compression with even-odd rule for interior detection
 
-## Notes
+### Challenging Problems
+- **Day 10 Part 2**: A* search with heuristics and component decomposition (times out on large inputs)
+- **Day 11 Part 2**: Path counting with constraints (#P-complete, times out despite optimizations)
+- **Day 12**: 2D bin packing / polyomino tiling (NP-complete, needs Dancing Links or better heuristics)
 
-- `DayBase` provides `InputPath` and `TestPath` helpers; `Program.cs` runs both test and input by default.
-- `.gitignore` is configured to exclude `bin/` and `obj/` build artifacts.
+### Performance
+- Timeout limit: 5 seconds per part
+- Most solutions complete in < 200ms
+- Day 8 Part 1 is slowest at ~180ms (many distance calculations)
 
-## Want more?
+## Adding a New Day
 
-- I can add unit tests, faster analytical counting for large ranges, or CI steps. Tell me which and I'll scaffold them.
+1. Create `DotNet/AOC2025/Days/DayXX.cs`:
+   ```csharp
+   using AOC2025.Common;
+   namespace AOC2025.Days;
+   
+   public class DayXX : DayBase
+   {
+       public DayXX() : base(XX) { }
+       
+       public override string Part1(string input) => "Not implemented";
+       public override string Part2(string input) => "Not implemented";
+   }
+   ```
 
-## Authorship & AI Assist
+2. Add resource files:
+   - `Resources/DayXX_Input.txt` (your personal puzzle input)
+   - `Resources/DayXX_Test.txt` (example from problem description)
 
-This project was developed using a "vibe coding" workflow: the C# solutions were generated and iterated with the help of an AI coding assistant. The user did not hand-write the C# code in this repository.
+3. Register in `Program.cs`:
+   ```csharp
+   var days = new DayBase[] { ..., new DayXX(), };
+   ```
 
-This project was developed with AI assistance.
+## Fetching Inputs
 
-If you prefer different wording or want this statement removed or expanded (for example to mention testing/verification steps), tell me and I'll update it.
+Use the provided script to download puzzle inputs and descriptions:
+
+```bash
+# Set your session cookie first
+export AOC_SESSION="your_session_cookie_from_browser"
+
+# Fetch a specific day
+./scripts/fetch_aoc.sh 12 2025
+```
+
+## Development Notes
+
+- All solutions include header comments explaining the problem and approach
+- Code follows .NET naming conventions and best practices
+- No external NuGet dependencies (uses only .NET 9 BCL)
+- Diagnostic modes available for debugging (see Day 2 example)
+
+## Authorship
+
+This project was developed with AI assistance using GitHub Copilot. The solutions represent a collaborative "vibe coding" workflow where problem-solving strategies were discussed and implemented iteratively.

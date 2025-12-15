@@ -1,3 +1,11 @@
+// Day 9: Red Tile Rectangles
+// Part 1: Find largest rectangle using any two red tiles as opposite corners
+// Part 2: Find largest rectangle with all edges on red tile boundary (interior check)
+//
+// Problem: Given coordinates of red tiles forming a closed loop, find rectangles.
+// Part 1 considers any two tiles. Part 2 ensures the rectangle's interior is actually
+// inside the red loop using coordinate compression and even-odd rule.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;

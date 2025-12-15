@@ -1,3 +1,11 @@
+// Day 8: 3D Constellation Circuits
+// Part 1: Connect N closest pairs of stars, multiply sizes of 3 largest circuits
+// Part 2: Find minimum spanning tree, return product of X coordinates of last connection
+//
+// Problem: Given 3D coordinates of stars, use Union-Find to group stars into circuits
+// based on distance. Part 1 uses a fixed number of connections, Part 2 finds the
+// connection that completes a single unified circuit.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;

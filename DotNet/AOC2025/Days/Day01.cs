@@ -1,3 +1,10 @@
+// Day 1: Safe Combination Lock
+// Part 1: Count number of times the lock dial passes through position 0 (zero crossings)
+// Part 2: Count every individual step through position 0 (not just completed turns)
+//
+// Problem: Given a sequence of turns (Right/Left + step count), simulate a dial that
+// starts at position 50 on a 0-99 scale (wraps around). Count zero crossings.
+
 namespace AOC2025.Days;
 
 using AOC2025.Common;

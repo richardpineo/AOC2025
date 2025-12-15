@@ -1,3 +1,11 @@
+// Day 5: Fresh Ingredient Detection
+// Part 1: Count how many ingredient IDs fall within "fresh" ranges
+// Part 2: Count total unique IDs covered by all merged fresh ranges
+//
+// Problem: Given numeric ranges defining "fresh" ingredient IDs and a list of
+// ingredient IDs to check, determine freshness. Part 2 requires merging overlapping
+// ranges and counting total coverage.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;

@@ -1,3 +1,11 @@
+// Day 3: Battery Bank Joltage
+// Part 1: Find largest 2-digit joltage from each battery bank (pick 2 batteries)
+// Part 2: Find largest 12-digit joltage using greedy monotonic stack algorithm
+//
+// Problem: Each line is a string of digit characters representing available batteries.
+// Select k batteries to maximize the resulting k-digit number formed by their digits
+// in the order they appear in the line.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;

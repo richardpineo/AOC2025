@@ -1,3 +1,10 @@
+// Day 2: Invalid ID Detection
+// Part 1: Sum all IDs that are exactly repeated twice (e.g., 123123, 77)
+// Part 2: Sum all IDs with any repeating pattern (2+ repetitions, e.g., 123123, 77, 555)
+//
+// Problem: Given ranges of numeric IDs, identify "invalid" ones based on digit patterns
+// and calculate their sum. Part 1 uses strict doubling, Part 2 uses any repetition.
+
 namespace AOC2025.Days;
 
 using AOC2025.Common;
@@ -124,19 +131,6 @@ public class Day02 : DayBase
             if (IsInvalidId(id)) sum += id;
         }
         return sum;
-    }
-
-    private static long CountInvalidIds(long start, long end)
-    {
-        long count = 0;
-        for (long id = start; id <= end; id++)
-        {
-            if (IsInvalidId(id))
-            {
-                count++;
-            }
-        }
-        return count;
     }
 
     // Public diagnostics helpers

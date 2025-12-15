@@ -1,3 +1,11 @@
+// Day 6: Column-wise Calculator
+// Part 1: Parse space-separated columns, apply operator from bottom row to each column
+// Part 2: Parse fixed-width columns from right-to-left, group by blank column separators
+//
+// Problem: Multi-line input represents vertical calculations. Numbers are in columns,
+// operator in bottom row. Part 1 uses space-separated parsing, Part 2 uses fixed-width
+// character positions and reads right-to-left.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;

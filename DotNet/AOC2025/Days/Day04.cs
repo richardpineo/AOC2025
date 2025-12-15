@@ -1,3 +1,11 @@
+// Day 4: Toilet Paper Roll Accessibility
+// Part 1: Count rolls accessible to elves (< 4 adjacent roll neighbors)
+// Part 2: Iteratively remove accessible rolls until none remain, count total removed
+//
+// Problem: Given a grid where '@' represents toilet paper rolls, determine which
+// rolls are "accessible" (have fewer than 4 of the 8 neighbors also being rolls).
+// Part 2 simulates elves taking accessible rolls iteratively.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;

@@ -1,3 +1,11 @@
+// Day 7: Beam Splitter Manifold
+// Part 1: Count total beam splits when beam travels down through splitters ('^')
+// Part 2: Count total distinct paths from start 'S' to bottom of manifold
+//
+// Problem: Given a grid with a start position 'S' and splitter symbols '^',
+// simulate a beam traveling downward. When hitting '^', beam splits into left/right.
+// Part 1 counts splits, Part 2 counts all possible paths using memoization.
+
 using AOC2025.Common;
 
 namespace AOC2025.Days;
