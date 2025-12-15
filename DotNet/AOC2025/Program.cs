@@ -50,6 +50,7 @@ var days = new DayBase[]
     new Day08(),
     new Day09(),
     new Day10(),
+    new Day11(),
     // Add more days as you solve them
 };
 
