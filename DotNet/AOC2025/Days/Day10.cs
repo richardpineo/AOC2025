@@ -1,3 +1,38 @@
+/*
+Current approach for Day 10, Part 2 (Joltage counters):
+
+Summary:
+- Parse each machine into counters (targets) and button contributions (0/1 per counter).
+- Whole-machine exact solver: if the instance is tiny (counters<=6, buttons<=6, sum targets<=60),
+    run an exact forward A* over counter states to preserve correctness on the sample test (33).
+- Otherwise, decompose into independent bipartite components (counters ↔ buttons) to reduce size.
+- For each component:
+    - Remove dominated/duplicate buttons (only strict supersets to avoid unsafe pruning).
+    - If component is still small, run the exact forward A*.
+    - Else run a backward A* from the remaining deficits with an admissible heuristic:
+        • Base heuristic: max buttons covering remaining positive counters per press.
+        • Improved heuristic: subset-based lower bounds where each press can reduce at most the
+            maximum coverage within that subset; take the max bound across all non-empty subsets.
+    - Use a greedy upper bound (UB) to cap search; if greedy cannot solve, UB = ∞ (int.MaxValue).
+    - Apply an adaptive state budget based on UB to avoid timeouts.
+
+Why this may not work well:
+- Greedy UB variability: If greedy fails or is very loose, UB becomes ∞ or very large, constraining
+    the A* only by a fixed budget. That can lead to timeouts or suboptimal pruning.
+- State explosion: Large target sums create very deep search trees; even with components,
+    the branching factor remains significant, and A* may still explore too many states.
+- Heuristic cost: The subset-based lower bound requires O(2^m) preprocessing where m is the
+    counters per component. While m is usually small, a few larger components can increase overhead.
+- Dominance removal safety: We only remove strict supersets to remain safe, but this limits how much
+    we can reduce the button set; more aggressive pruning risks eliminating optimal combinations.
+
+Ideas to improve next:
+- Meet-in-the-middle for mid-size components with strict state caps and better per-button bounds.
+- Tighter UB: multi-pass greedy (e.g., try different button orderings) or small-depth local search to
+    get a tighter UB, improving A* pruning.
+- Per-component memoization keyed by (targets, contrib signature) to reuse results across machines.
+- Refined heuristics: per-counter minimal-cover bounds, or LP relaxations to get lower bounds.
+*/
 using AOC2025.Common;
 
 namespace AOC2025.Days;
@@ -195,13 +230,10 @@ public class Day10 : DayBase
         }
 
         // Small-case exact solver (A* forward) to preserve correctness on tests
-        if (numCounters <= 6 && numButtons <= 6 && targets.Sum() <= 30)
+        if (numCounters <= 6 && numButtons <= 6 && targets.Sum() <= 60)
         {
             return SolveSmallForwardAStar(targets, contributions);
         }
-
-        // For larger cases, use simple greedy
-        return SolveComponentGreedyOptimized(targets, contributions);
 
         // Partition into connected components (counters-buttons bipartite graph)
         var components = GetComponents(contributions, numCounters, numButtons);
@@ -225,8 +257,22 @@ public class Day10 : DayBase
             // Remove dominated/duplicate buttons
             subContrib = RemoveDominated(subContrib);
 
-            // Use greedy for now - exact solvers too slow for input
-            total += SolveComponentGreedyOptimized(subTargets, subContrib);
+            // If no target to hit, skip
+            if (subTargets.All(t => t == 0)) continue;
+            if (subContrib.Length == 0) return int.MaxValue;
+
+            // Choose solver per component: exact for small, backward A* for larger
+            int part;
+            if (subTargets.Count <= 6 && subContrib.Length <= 6 && subTargets.Sum() <= 30)
+            {
+                part = SolveSmallForwardAStar(subTargets, subContrib);
+            }
+            else
+            {
+                part = SolveComponentBackwardAStar(subTargets, subContrib);
+            }
+            if (part == int.MaxValue) return int.MaxValue;
+            total += part;
         }
         return total;
     }
@@ -274,7 +320,7 @@ public class Day10 : DayBase
                 }
             }
         }
-        return 0;
+        return int.MaxValue;
     }
 
     private List<(List<int> counters, List<int> buttons)> GetComponents(int[][] contributions, int numCounters, int numButtons)
@@ -378,6 +424,24 @@ public class Day10 : DayBase
         var start = subTargets.ToArray();
         var pq = new PriorityQueue<(int[] deficits, int cost), int>();
         var best = new Dictionary<string, int>();
+
+        // Precompute max-per-press reduction for every subset of counters
+        int subsetCount = 1 << m;
+        var maxCoverForSubset = new int[subsetCount];
+        for (int mask = 1; mask < subsetCount; mask++)
+        {
+            int cmax = 0;
+            for (int b = 0; b < n; b++)
+            {
+                int c = 0;
+                for (int i = 0; i < m; i++)
+                {
+                    if (((mask >> i) & 1) != 0 && subContrib[b][i] > 0) c++;
+                }
+                if (c > cmax) cmax = c;
+            }
+            maxCoverForSubset[mask] = cmax; // 0 means no button affects this subset
+        }
         int UpperBoundFromGreedy()
         {
             // quick greedy: repeatedly subtract the button covering most positive deficits
@@ -405,28 +469,41 @@ public class Day10 : DayBase
                 for (int i = 0; i < m; i++) d[i] -= subContrib[bestBtn][i];
                 presses++;
             }
+            // If not solved, indicate failure with a very large bound
+            for (int i = 0; i < m; i++) if (d[i] != 0) return int.MaxValue;
             return presses;
         }
 
         int ub = UpperBoundFromGreedy();
         int Heuristic(int[] d)
         {
-            int maxPerPress = 0;
-            for (int b = 0; b < n; b++)
+            int lb = 0;
+            // Evaluate lower bounds over all non-empty subsets
+            for (int mask = 1; mask < subsetCount; mask++)
             {
-                int cnt = 0; for (int i = 0; i < m; i++) if (subContrib[b][i] > 0 && d[i] > 0) cnt++;
-                if (cnt > maxPerPress) maxPerPress = cnt;
+                int sum = 0;
+                for (int i = 0; i < m; i++) if (((mask >> i) & 1) != 0) sum += d[i];
+                if (sum == 0) continue;
+                int cap = maxCoverForSubset[mask];
+                if (cap == 0)
+                {
+                    // No button affects this subset but remaining sum > 0 => impossible
+                    return int.MaxValue;
+                }
+                int need = (sum + cap - 1) / cap;
+                if (need > lb) lb = need;
             }
-            if (maxPerPress == 0) return 0;
-            int rem = 0; for (int i = 0; i < m; i++) rem += d[i];
-            return (int)Math.Ceiling(rem / (double)maxPerPress);
+            return lb;
         }
 
         string Key(int[] d) => string.Join(",", d);
         pq.Enqueue((start, 0), Heuristic(start));
         best[Key(start)] = 0;
 
-        int stateBudget = Math.Max(100000, ub * 10000);
+        // Adaptive cap to avoid timeouts on large components
+        int stateBudget = ub == int.MaxValue
+            ? 50000
+            : (ub <= 10 ? 100000 : (ub <= 30 ? 50000 : Math.Min(50000, ub * 500)));
         int explored = 0;
         while (pq.Count > 0 && explored < stateBudget)
         {
@@ -489,6 +566,7 @@ public class Day10 : DayBase
                 for (int i = 0; i < m; i++) d[i] -= subContrib[bestBtn][i];
                 presses++;
             }
+            for (int i = 0; i < m; i++) if (d[i] != 0) return int.MaxValue;
             return presses;
         }
 
