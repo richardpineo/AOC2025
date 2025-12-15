@@ -34,7 +34,7 @@ public abstract class DayBase
         try
         {
             var task = System.Threading.Tasks.Task.Run(() => Part1(input));
-            if (task.Wait(TimeSpan.FromSeconds(10)))
+            if (task.Wait(TimeSpan.FromSeconds(5)))
             {
                 sw.Stop();
                 var part1Elapsed = sw.Elapsed;
@@ -43,7 +43,7 @@ public abstract class DayBase
             else
             {
                 sw.Stop();
-                Console.WriteLine($"  Part 1: TIMEOUT after 10 seconds");
+                Console.WriteLine($"  Part 1: TIMEOUT after 5 seconds");
             }
         }
         catch (Exception ex)
@@ -57,7 +57,7 @@ public abstract class DayBase
         try
         {
             var task = System.Threading.Tasks.Task.Run(() => Part2(input));
-            if (task.Wait(TimeSpan.FromSeconds(10)))
+            if (task.Wait(TimeSpan.FromSeconds(5)))
             {
                 sw.Stop();
                 var part2Elapsed = sw.Elapsed;
@@ -66,7 +66,7 @@ public abstract class DayBase
             else
             {
                 sw.Stop();
-                Console.WriteLine($"  Part 2: TIMEOUT after 10 seconds");
+                Console.WriteLine($"  Part 2: TIMEOUT after 5 seconds");
             }
         }
         catch (Exception ex)
